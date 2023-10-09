@@ -1,0 +1,187 @@
+# Import dataset
+import pandas as pd
+DATA_DIR = "weather.csv"
+weather_df = pd.read_csv (DATA_DIR, header=0)
+
+#.info() method to check structure of the data
+print (weather_df.info())
+# len() method to check the number of rows in the dataset
+print(len(weather_df))
+# Checking the Number of Levels in Categorical Variable
+# value_counts() count the number of levels in a categorical variable, or count unique values in a column
+# len() here is use to count the number of levels as value_counts() returns a series, this return the number
+levels = len (pd.value_counts(weather_df['Description']))
+# .format() enables you to print the value of a variable into the placeholder
+print ('There are {} levels in the Description column'.format (levels))
+
+# dropping 1st label that being detected
+# if prevent multicollinearity, it uses only one dummy variable as a reference
+df_dummies = pd.get_dummies(weather_df, drop_first=True) 
+# .shape[1] returns the number of columns in the dataset, .shape[0] returns the number of rows
+# the number of columns increase because it has 3 levels, one is reference other 2 are dummy variables
+print ('There are {} columns in df_dummies'.format (df_dummies.shape[1]))
+
+# Shuffle Rows Prior to Splitting Data into Features (X) and Outcome (Y)
+# We shuffling to randomise the data, to avoid biasness
+from sklearn.utils import shuffle
+ #random_state = 0, meaning no shuffling
+ #random_state = 42, meaning shuffling, the specific seed value is 42
+df_shuffled = shuffle (df_dummies, random_state=42)
+
+# Y,DV => Dependent variable
+DV = 'Temperature_c'
+
+# We drop DV,so that x only have the independent variables
+# Axis = 1, means drop column
+x = df_shuffled.drop (DV, axis=1) 
+y = df_shuffled [DV] 
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split (x, y, test_size=0.20, random_state=42)
+
+print (x_train.head ())
+
+# Now choose simple linear regression model or multiple linear regression model
+# If select 1 column as dependent variable then SLR
+# If select 2 or more columns as dependent variable then MLR
+
+# --------------- CHOOSE A: Fitting Linear Regression Model
+# Initiate Linear Regression
+from sklearn.linear_model import LinearRegression
+# we create an object called model
+model = LinearRegression()                    
+
+# Fit model to the humidity column in the training data, X
+# this is where we train the data
+model.fit (x_train [['Humidity']], y_train)   
+
+# Extract the Intercept Value, Y
+# identify interception points
+intercept = model.intercept_  
+
+# Extract the value of Coefficient, C
+ # identify coefficient values
+coefficient = model.coef_     
+
+#Print message with formula for predicting temperature
+# Use google to find the formula
+# .2f means 2 decimal places, the 0 and 1 is the position of the variable, 0 is intercept, 1 is coefficient
+# [0] means it is placed in the first placeholder
+print ('Temperature = {0:0.2f} + ({1:0.2f} x Humidity)'.format(intercept, coefficient[0]))
+
+# Generate Prediction on Test Data
+# This is where we start prediction
+# Prediction is used to check how good is our model
+predictions = model.predict(x_test[['Humidity']])  
+
+# Creating a Correlation Coefficient and Display on Plot Title
+# Scatter plot is used to check how good is our model by comparing the predicted values and actual values
+import matplotlib.pyplot as plt
+from scipy.stats import pearsonr
+# .scatter(y-axis, x-axis)
+plt.scatter (y_test, predictions)
+plt.xlabel ('Y Test (True Values)')
+plt.ylabel('Predicted Values')
+# r = correlation coefficient, need to be 1 or -1 or else is not a good model
+plt.title('Predicted vs. Actual Values (r = {0:0.2f})'.format(pearsonr(y_test, predictions)[0]))
+plt.show()
+
+# Reacessing the Model by creating a density plot of the residuals
+# Residuals is the difference between the predicted value and the actual value
+# Use shapiro to determine if the residuals are normally distributed and if the model is good
+
+# Create a density plot of the residuals.
+# Seaborn for data visualisation
+import seaborn as sns
+from scipy.stats import shapiro
+# Create a density plot of the residuals, bins is number of bars
+sns.distplot ((y_test - predictions), bins = 50)
+plt.xlabel ('Residuals')
+plt.ylabel('Density')
+# 1 is the position of the variable, 0 is test statistic, 1 is p-value
+plt.title ('Histogram of Residuals (Shapiro W p-value = {0:0.3f})'.format(shapiro(y_test - predictions)[1]))
+plt.show()
+# P-value is 0.000, which is less than 0.05, so it is against the idea you are testing, so it is not normally distributed
+
+# Also use performance metrics to check if the model is good
+# MAE, MSE, RMSE, R-Squared
+# MAE ideally should be 0, MSe ideally should be 0, RMSE ideally should be 0, R-Squared ideally should be 1
+# Performance Metrics
+from sklearn import metrics
+import numpy as np
+metrics_df = pd.DataFrame ({'Metric':['MAE','MSE','RMSE','R-Squared'],
+# Calculate the difference between the actual value and the predicted value
+# Round to 3 decimal places
+'Value':[metrics.mean_absolute_error(y_test, predictions),
+metrics.mean_squared_error (y_test, predictions),
+np.sqrt (metrics.mean_squared_error (y_test, predictions)),
+metrics.explained_variance_score (y_test, predictions)]}).round(3)
+print(metrics_df)
+
+# --------------- CHOOSE B: Fitting Multiple Regression Model
+# Use the whole column table as independent variable
+# Now for x, x_train
+
+# Fit model to training data
+model.fit(x_train, y_train) 
+
+# Same as SLR
+# Extract Intercept Value
+intercept = model.intercept_
+
+# Extract Coefficient Value
+coefficients = model.coef_
+
+# Print formula for Predicting Temperature
+print('Temperature = {0:0.2f} + ({1:0.2f} x Humidy) + ({2:0.2f} x Wind Speed) + ({3:0.2f} x Wind BearingDegrees) +({4:0.2f} x Visbility) + ({5:0.2f} x Pressure) + ({6:0.2f} x Rain) + ({7:0.2f} x Normal Weather) + ({8:0.2f} x Warm Weather)'.format(intercept,
+coefficients[0],
+coefficients[1],
+coefficients[2],
+coefficients[3],
+coefficients[4],
+coefficients[5],
+coefficients[6],
+coefficients[7]))
+
+# Select all column table for testing
+# Generate Prediction on Test Data
+predictions = model.predict(x_test) 
+
+# Creating a Correlation Coefficient and Display on Plot Title
+import matplotlib.pyplot as plt
+from scipy.stats import pearsonr
+plt.scatter (y_test, predictions)
+plt.xlabel ('Y Test (True Values)')
+plt.ylabel('Predicted Values')
+plt.title('Predicted vs. Actual Values (r = {0:0.2f})'.format(pearsonr(y_test, predictions)[0]))
+plt.show()
+
+# It has a higher r value, so it is a better model
+# Use Shapiro to check if the residuals are normally distributed
+
+# Create a density plot of the residuals.
+import seaborn as sns
+from scipy.stats import shapiro
+sns.distplot ((y_test - predictions), bins = 50)
+plt.xlabel ('Residuals')
+plt.ylabel('Density')
+plt.title ('Histogram of Residuals (Shapiro W p-value = {0:0.3f})'.format(shapiro(y_test -predictions)[1]))
+plt.show()
+
+# Performance Metrics
+from sklearn import metrics
+import numpy as np
+metrics_df = pd.DataFrame ({'Metric':
+['MAE',
+'MSE',
+'RMSE',
+'R-Squared'], 'Value':
+[metrics.mean_absolute_error(y_test, predictions),
+metrics.mean_squared_error (y_test, predictions),
+np.sqrt (metrics.mean_squared_error (y_test, predictions)),
+metrics.explained_variance_score (y_test, predictions)]}).round(3)
+print(metrics_df)
+
+# MAE has only 2.867, SLR is 6 so is better
+# R-Squared is 0.870, SLR is 0.407 so is better
+# Logically when we have more element, we have a higher R-Squared value

@@ -1,0 +1,135 @@
+import pandas as pd
+DATA_DIR = "Banking_Marketing.csv"
+Banking_Marketing_df = pd.read_csv (DATA_DIR, header=0)
+print("Print number of rows: {}".format(len(Banking_Marketing_df)))
+
+print("Print number of columns: {}".format(len(Banking_Marketing_df.columns)))
+print()
+
+print("Listing all columns: ") 
+print(Banking_Marketing_df.head())
+print()
+
+print("Display basic statistic of all columns: ")
+print(Banking_Marketing_df.describe())
+print()
+
+print("Display basic information of the columns: ")
+print(Banking_Marketing_df.info())
+# Find how many missing values there are in the columns.
+print (Banking_Marketing_df.isnull().sum())
+# Remove missing values
+# [Before 41199 rows x 21 columns]
+print("Before remove missing values: [{} rows x {} col]".format(Banking_Marketing_df.shape[0],Banking_Marketing_df.shape[1] ))
+
+Banking_Marketing_df = (Banking_Marketing_df.dropna())
+print("After remove missing values: [{} rows x {} col]".format(Banking_Marketing_df.shape[0],Banking_Marketing_df.shape[1] ))
+print (Banking_Marketing_df.isnull().sum())
+# Print the frequent distribution of the education column.
+import matplotlib.pyplot as plt
+
+print(Banking_Marketing_df['education'].value_counts())
+Banking_Marketing_df['education'].value_counts().plot(kind='bar') 
+plt.show()
+# Reduce categories in education column
+import numpy as np
+
+# remove illiterate values coz there are only 18 ppl
+Banking_Marketing_df['education'].replace(to_replace=['illiterate'], value=np.NAN, inplace=True)
+
+Banking_Marketing_df['education'].replace(to_replace=['basic.4y', 'basic.6y', 'basic.9y'], value='Basic', inplace=True)
+print(Banking_Marketing_df['education'].value_counts())
+
+Banking_Marketing_df['education'].value_counts().plot(kind='bar') 
+plt.show()
+# Read Dataset and import LabelEncoder from sklearn.preprocessing package
+from sklearn.preprocessing import LabelEncoder
+
+print (Banking_Marketing_df.head())
+# Select Non-Numerical Columns
+data_column_category = Banking_Marketing_df.select_dtypes (exclude=[np.number]).columns
+print (data_column_category)
+print (Banking_Marketing_df[data_column_category].head())
+# Remove Missing Data
+Banking_Marketing_df = Banking_Marketing_df.dropna()
+
+# Iterate through column to convert to numeric data using LabelEncoder ()
+label_encoder = LabelEncoder()
+for i in data_column_category:
+  Banking_Marketing_df[i] = label_encoder.fit_transform (Banking_Marketing_df[i])
+
+print("Label Encoder Data:")
+print(Banking_Marketing_df.head())
+# Data Transformation with StandardScaler()
+from sklearn import preprocessing
+
+# Check for Missing Data
+null_ = Banking_Marketing_df.isna().any()
+dtypes = Banking_Marketing_df.dtypes
+info = pd.concat ([null_,dtypes], axis = 1, keys = ['Null', 'type'])
+print(info) # This is different way of viewing data
+
+std_scale = preprocessing.StandardScaler().fit_transform (Banking_Marketing_df)
+scaled_frame = pd.DataFrame (std_scale, columns = Banking_Marketing_df.columns)
+print (scaled_frame.head())
+
+# Data Transformation with MinMax Scaler Method
+minmax_scale = preprocessing.MinMaxScaler().fit_transform (Banking_Marketing_df)
+scaled_frame = pd.DataFrame (minmax_scale, columns = Banking_Marketing_df.columns)
+print (scaled_frame.head())
+# Checking the Number of Levels in Categorical Variable
+levels = len (pd.value_counts(Banking_Marketing_df['education']))
+print ('There are {} levels in the education column'.format (levels))
+
+df_dummies = pd.get_dummies(Banking_Marketing_df, drop_first=True)
+print ('There are {} columns in df_dummies'.format (df_dummies.shape[1]))
+
+# Shuffle Rows Prior to Splitting Data into Features (X) and Outcome (Y)
+from sklearn.utils import shuffle
+from sklearn.model_selection import train_test_split
+
+df_shuffled = shuffle (df_dummies, random_state=42) #random_state = 0, meaning no shuffling
+
+DV = 'y' # DV => Dependent variable
+
+x = df_shuffled.drop (DV, axis=1) # axis=1, drop the DV column, don't axis = 0
+y = df_shuffled [DV] # this our depenedent variable?
+
+# 20% for training, The rest for testing
+# random_state = 42 is used to select the 20% of the data set for testing randomly
+x_train, x_test, y_train, y_test = train_test_split (x, y, test_size=0.20, random_state=42)
+
+print (x_train.head ())
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, precision_score
+from sklearn.metrics import recall_score, confusion_matrix, roc_curve, auc
+
+rfc = RandomForestClassifier()
+#predict = rfc.predict(x_test)
+rfc.fit(x_train, y_train)
+train_set_preds = rfc.predict(x_train)
+test_set_preds = rfc.predict(x_test)
+print('Accuracy: %0.4f' % accuracy_score(y_test,  test_set_preds))
+print('Precision: %0.4f' % precision_score(y_test,  test_set_preds))
+print('Recall: %0.4f' % recall_score(y_test,  test_set_preds))
+print('Accuracy for test set: %0.4f' % accuracy_score(y_test, test_set_preds))
+print('Accuracy for train set: %0.4f' % accuracy_score(y_train, train_set_preds))
+
+print('\n')
+
+print('Precision for test set: %0.4f' % precision_score(y_test, test_set_preds))
+print('Precision for train set: %0.4f' % precision_score(y_train, train_set_preds))
+
+print('\n')
+
+print('Recall for test set: %0.4f' % recall_score(y_test, test_set_preds))
+print('Recall for train set: %0.4f' % recall_score(y_train, train_set_preds))
+train_preds = rfc.predict(x_train)
+test_preds = rfc.predict(x_test)
+# Get AUC and ROC
+train_fpr, train_tpr, train_thresholds = roc_curve(y_train, train_preds)
+test_fpr, test_tpr, test_thresholds = roc_curve(y_test, test_preds)
+
+train_roc_auc = auc(train_fpr, train_tpr)
+test_roc_auc = auc(test_fpr, test_tpr)
+

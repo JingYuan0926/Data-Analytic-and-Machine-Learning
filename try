@@ -1,0 +1,18 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+A = np.array([[30, 73], [20, 50], [60, 128], [80, 170], [40, 87], [50, 108], [60, 135], [30, 69], [70, 148], [60, 132]])
+
+plt.figure()
+plt.title('Input data')
+# A[:, 0] means all rows, A[:, 1] means all columns
+# marker='o' means circle, s=100 means size of circle, color='black' means color of circle
+plt.scatter(A[:, 0], A[:, 1], marker='o', s=100, color='black')
+plt.show()
+
+slope, intercept = np.polyfit(A[:, 0], A[:, 1], 1)
+
+print("Slope:", slope)
+print("Intercept:", intercept)
+

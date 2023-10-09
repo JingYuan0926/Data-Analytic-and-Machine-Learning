@@ -1,0 +1,15 @@
+# Import dataset
+import pandas as pd
+DATA_DIR_3 = "students.csv"
+DATA_DIR_4 = "mark.csv"
+student_df = pd.read_csv (DATA_DIR_3, header=0)
+marks_df = pd.read_csv (DATA_DIR_4, header=0)
+
+#Checking of Data
+print (student_df.head())
+print (marks_df.head())
+
+# Merging of DataFrame using the pd.merge ()
+# .merge (left dataframe, right dataframe, on = "column name")
+df = pd.merge(student_df, marks_df, on = "Student_id")
+print (df.head (10))

@@ -1,0 +1,94 @@
+# Step 2: Import the libraries
+import pandas as pd
+# For label encoder
+from sklearn.preprocessing import LabelEncoder
+import numpy as np
+
+#####################################################################################
+
+# Step 3: Import the dataset
+DATA_DIR_1 = "Banking_Marketing.csv"
+#.read_csv(directory,first row of csv contains the column or header, if column is second row use header=1)
+Banking_Marketing_df = pd.read_csv (DATA_DIR_1, header=0)
+
+# Determine the datatype of Each Column by using .dtypes
+print (Banking_Marketing_df.dtypes)
+
+#####################################################################################
+
+# Step 4: Handling Missing Values
+
+# Delete the rows with missing values
+'''
+# Determine the missing value of each column by using .isna(), use .sum() to sum all the missing value
+print("Find missing value of each column using isna()")
+print (Banking_Marketing_df.isna().sum())
+
+# Remove all rows with missing data by using dropna()
+print("\nRemove all rows with missing data by using dropna()")
+data = Banking_Marketing_df.dropna ()
+print(data.isna().sum())
+'''
+
+#####################################################################################
+
+# Imputation of missing values
+
+# Computation of the Mean value by using mean ()
+mean_age = Banking_Marketing_df.age.mean ()
+print()
+# %.2 means 2 decimal places, f means float, % mean the value should be inserted here into mean_age
+print ("Mean age: %.2f" % mean_age)
+
+# Impute the missing data with its mean by using fillna ()
+# .fillna(the number you want to fill in, inplace=True means the change will be applied to the dataframe)
+Banking_Marketing_df.age.fillna(mean_age, inplace=True)
+print("\nImpute missing data with mean value:")
+print (Banking_Marketing_df.isna().sum())
+
+#####################################################################################
+
+# Computation of Median value by using median ()
+# Used median because the 'duration' variable is too diverse
+median_duration = Banking_Marketing_df.duration.median() 
+print ("\nMedian duration: %.2f" % median_duration)
+
+Banking_Marketing_df.duration.fillna(median_duration, inplace=True)
+print("\nImpute missing data with median value:")
+print (Banking_Marketing_df.isna().sum())
+
+#####################################################################################
+
+# Impute Categorical Data with its mode by using mode ()
+# [0] means the first value of the mode
+mode_contact = Banking_Marketing_df.contact.mode()[0]
+print()
+print (mode_contact)
+
+# impute using fillna. Use mode to find the most popular contact
+Banking_Marketing_df.contact.fillna (mode_contact, inplace = True) 
+print("\nImpute missing data with mode (most popular contact):")
+print (Banking_Marketing_df.isna().sum())
+
+#####################################################################################
+
+# Step 5: Encode Categorical Data using Label Encoder
+# .head() shows the first 5 rows of the dataframe
+print (Banking_Marketing_df.head())
+
+# Select Non-Numerical Columns
+# .select_dtypes(exclude=[np.number]) means select all the columns that are not numerical, exclude numerical columns
+data_column_category = Banking_Marketing_df.select_dtypes (exclude=[np.number]).columns
+print (data_column_category)
+print (Banking_Marketing_df[data_column_category].head())
+
+# Iterate through column to convert to numeric data using LabelEncoder ()
+label_encoder = LabelEncoder()
+# i is used to iterate through each column, i is the column name
+# .fit_transform() means fit the data and transform it into numerical data
+for i in data_column_category:
+    Banking_Marketing_df[i] = label_encoder.fit_transform (Banking_Marketing_df[i])
+
+print()
+print("Label Encoder Data:")
+print(Banking_Marketing_df.head())

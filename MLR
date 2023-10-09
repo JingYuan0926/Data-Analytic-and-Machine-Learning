@@ -1,0 +1,22 @@
+#1 Importing the libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+#2 Importing the dataset:
+dataset = pd.read_csv('50Startups.csv')
+
+#Y: dependent variable vector
+#In the first run X’s type is object due to the different types of #independent variables.State column contains categorical variables
+# :-1 means all columns except the last one
+# 4 means from 0,1,2,3
+X= dataset.iloc[:, :-1].values
+Y=dataset.iloc[:, 4].values
+
+#3 Encoding the categorical variables:
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+labelencoder_X = LabelEncoder()
+#Change the text into numbers 0,1,2
+X[: ,3]= labelencoder_X.fit_transform(X[: ,3])
+# onehotencoder= OneHotEncoder(categorical_features=[3])
+onehotencoder = OneHotEncoder(categories='auto')
