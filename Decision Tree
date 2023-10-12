@@ -1,0 +1,51 @@
+import pydotplus
+from sklearn import tree
+from sklearn.datasets import load_iris
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split 
+import collections
+
+
+X=[[165,19],[175,32],[136,35],[174,65],[141,28],[176,15],[131,32],[166,6],[128,32],[179,10],[136,34],[186,2],[126,25],[176,28],[112,38],[169,9],[171,36],[116,25],[196,25]]
+Y =['Man','Woman','Woman','Man','Woman','Man','Woman','Man','Woman','Man','Woman','Man','Woman','Woman','Woman','Man','Woman','Woman','Man']
+# The 2 feature for the decision tree are height and length of hair
+data_feature_names = ['height','length of hair']
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.40, random_state=5)
+
+clf = tree.DecisionTreeClassifier()
+clf = clf.fit(X_train, Y_train)
+prediction = clf.predict([[133,37]])
+print(prediction)
+
+import collections
+import pydotplus
+from sklearn.tree import export_graphviz
+
+# Assuming clf is your trained decision tree classifier, and data_feature_names is your feature names
+# out_file = none, so it doesn't write Decisiontree.png to a file
+# filled is colour the boxes
+# rounded is round the boxes
+dot_data = export_graphviz(clf, feature_names=data_feature_names, out_file=None, filled=True, rounded=True)
+graph = pydotplus.graph_from_dot_data(dot_data)
+colors = ('orange', 'yellow')
+# edges is used to store information about the edges in the graph
+edges = collections.defaultdict(list)
+
+# get source and destination of the edges
+for edge in graph.get_edge_list():
+    source, destination = edge.get_source(), edge.get_destination()
+    edges[source].append(int(destination))
+
+# sort the source edges
+for source in edges:
+    edges[source].sort()
+
+# retrieve destination node as string and set the colour
+for i in range(2):
+    destination = graph.get_node(str(edges[source][i]))[0]
+# set different colours for the different classes
+    destination.set_fillcolor(colors[i])
+
+graph.write_png('Decisiontree.png')
+
