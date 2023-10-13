@@ -1,6 +1,6 @@
 # Import dataset
 import pandas as pd
-DATA_DIR = "weather.csv"
+DATA_DIR = "C:/Users/User/Documents/Python/Data Analytic and Machine Learning/Dataset/weather.csv"
 weather_df = pd.read_csv (DATA_DIR, header=0)
 
 #.info() method to check structure of the data

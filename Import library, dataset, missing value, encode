@@ -7,7 +7,7 @@ import numpy as np
 #####################################################################################
 
 # Step 3: Import the dataset
-DATA_DIR_1 = "Banking_Marketing.csv"
+DATA_DIR_1 = "C:/Users/User/Documents/Python/Data Analytic and Machine Learning/Dataset/Banking_Marketing.csv"
 #.read_csv(directory,first row of csv contains the column or header, if column is second row use header=1)
 Banking_Marketing_df = pd.read_csv (DATA_DIR_1, header=0)
 

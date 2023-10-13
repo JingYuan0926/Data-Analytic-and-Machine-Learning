@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 #2 Importing the dataset:
-dataset = pd.read_csv('50Startups.csv')
+dataset = pd.read_csv('C:/Users/User/Documents/Python/Data Analytic and Machine Learning/Dataset/50Startups.csv')
 
 #Y: dependent variable vector
 #In the first run X’s type is object due to the different types of #independent variables.State column contains categorical variables

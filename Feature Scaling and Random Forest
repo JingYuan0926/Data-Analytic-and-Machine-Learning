@@ -1,5 +1,5 @@
 import pandas as pd
-DATA_DIR = "Banking_Marketing.csv"
+DATA_DIR = "C:/Users/User/Documents/Python/Data Analytic and Machine Learning/Dataset/Banking_Marketing.csv"
 Banking_Marketing_df = pd.read_csv (DATA_DIR, header=0)
 
 print("Print number of rows: {}".format(len(Banking_Marketing_df)))

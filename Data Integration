@@ -1,7 +1,7 @@
 # Import dataset
 import pandas as pd
-DATA_DIR_3 = "students.csv"
-DATA_DIR_4 = "mark.csv"
+DATA_DIR_3 = "C:/Users/User/Documents/Python/Data Analytic and Machine Learning/Dataset/students.csv"
+DATA_DIR_4 = "C:/Users/User/Documents/Python/Data Analytic and Machine Learning/Dataset/mark.csv"
 student_df = pd.read_csv (DATA_DIR_3, header=0)
 marks_df = pd.read_csv (DATA_DIR_4, header=0)
 
