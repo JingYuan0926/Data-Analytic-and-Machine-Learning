@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-A = np.array([[30, 73], [20, 50], [60, 128], [80, 170], [40, 87], [50, 108], [60, 135], [30, 69], [70, 148], [60, 132]])
+A = np.array([[1, 9], [2, 8], [3, 10], [4, 12], [5, 11], [6, 13], [7, 14]])
 
 plt.figure()
 plt.title('Input data')

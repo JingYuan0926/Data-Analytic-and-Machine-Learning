@@ -168,7 +168,7 @@ train_roc_auc = auc(train_fpr, train_tpr)
 test_roc_auc = auc(test_fpr, test_tpr)
 
 print('AUC for train set: %0.4f' % train_roc_auc)
-print('AUC for test set: %0.4f' % test_roc_auc)
+print('ROC for test set: %0.4f' % test_roc_auc)
 
 # Visualize ROC curve
 plt.figure(figsize=(7, 5), dpi=80)
