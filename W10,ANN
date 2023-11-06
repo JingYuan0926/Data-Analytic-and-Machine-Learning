@@ -1,0 +1,46 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from keras.models import Sequential
+from keras.layers import Dense
+
+# Load the Boston Housing dataset from a local CSV file
+# Replace 'boston.csv' with the actual path to your dataset file
+boston_df = pd.read_csv('Dataset/BostonHousing.csv')
+
+# Extract the features (X) and target variable (Y)
+X = boston_df.drop('medv', axis=1)
+Y = boston_df['medv']
+
+# Split the data into training and testing sets
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+
+# Standardize the features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Build a linear regressor model using Keras
+model = Sequential()
+model.add(Dense(1, input_dim=X_train.shape[1], activation='linear'))  # Linear activation for regression
+model.compile(loss='mean_squared_error', optimizer='adam')
+
+# Train the model
+model.fit(X_train, Y_train, epochs=100, batch_size=32, verbose=1)
+
+# Evaluate the model
+loss = model.evaluate(X_test, Y_test)
+print(f"Test Mean Squared Error: {loss}")
+
+# Predict the target variable using the trained model
+
+Y_pred = model.predict(X_test).flatten()  # Flatten the predictions
+tolerance = 2.0  # You can adjust this value
+
+# Calculate Accuracy
+correct_predictions = np.sum(np.abs(Y_pred - Y_test) <= tolerance)
+total_predictions = len(Y_test)
+accuracy = correct_predictions / total_predictions
+
+print(f"Accuracy {accuracy * 100:.2f}%")
